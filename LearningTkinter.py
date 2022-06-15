@@ -209,32 +209,65 @@
 # app = Fruitlist(root)
 # root.mainloop()
 
-###vv https://stackoverflow.com/questions/10593027/how-can-i-connect-a-stringvar-to-a-text-widget-in-python-tkinter
-import tkinter as tk
+
+
+
+## vvFrom https://stackoverflow.com/questions/13588908/dynamically-change-widget-background-color-in-tkinter
 from tkinter import *
-from tkinter.scrolledtext import ScrolledText
+from tkmacosx import Button
+
+root = Tk()
+
+def change():
+    button.configure(bg = "blue")
+    # button.pack()
+
+color = Button(
+        root,
+        text="color",
+        width=200,
+        height=22,
+        fg="yellow",
+        bg = "blue",
+        activebackground="lightblue",
+        borderwidth=4
+        )
 
 
-def get_stringvar(event):
-    SV.set(ST1.get("1.0", END))
-    ST2.replace("1.0", END, SV.get())
-    print(ST1.get("1.0", "end-1c"))
+button = Button(text = 'start', bg = "red", command = lambda: change())
 
-
-root = tk.Tk()
-
-SV = StringVar()
-
-ST1 = ScrolledText(root)
-ST1.pack()
-ST1.bind('<KeyRelease>', get_stringvar)
-
-
-ST2 = ScrolledText(root)
-ST2.pack()
+color.pack()
+button.pack()
 
 root.mainloop()
-###^^
+##^^From https://stackoverflow.com/questions/13588908/dynamically-change-widget-background-color-in-tkinter
+
+# ###vv https://stackoverflow.com/questions/10593027/how-can-i-connect-a-stringvar-to-a-text-widget-in-python-tkinter
+# import tkinter as tk
+# from tkinter import *
+# from tkinter.scrolledtext import ScrolledText
+#
+#
+# def get_stringvar(event):
+#     SV.set(ST1.get("1.0", END))
+#     ST2.replace("1.0", END, SV.get())
+#     print(ST1.get("1.0", "end-1c"))
+#
+#
+# root = tk.Tk()
+#
+# SV = StringVar()
+#
+# ST1 = ScrolledText(root)
+# ST1.pack()
+# ST1.bind('<KeyRelease>', get_stringvar)
+#
+#
+# ST2 = ScrolledText(root)
+# ST2.pack()
+#
+# root.mainloop()
+# ###^^
 
 # from tkinter import *
 # root = Tk()

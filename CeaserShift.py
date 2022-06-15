@@ -10,6 +10,10 @@ from os.path import isfile, join
 
 import numpy as np
 
+import collections
+from collections import defaultdict
+
+
 import tkinter as tk
 from tkinter import *
 from tkinter import scrolledtext
@@ -18,11 +22,19 @@ from tkinter import ttk
 from tkmacosx import Button
 
 
+## vvFrom https://stackoverflow.com/questions/5419204/index-of-duplicates-items-in-a-python-list
+def list_duplicates(seq):
+    tally = defaultdict(list)
+    for i,item in enumerate(seq):
+        tally[item].append(i)
+    return ((key,locs) for key,locs in tally.items()
+                            if len(locs)>1)
+## ^^From https://stackoverflow.com/questions/5419204/index-of-duplicates-items-in-a-python-list
+
+
 def callback(sv,j,i):
-    # print(i,j)
     if bool(svs):
         a=0
-
 
         if j == 0: ## makes plaintext alphabet entries lowercase
             letter = entries[i][j].get()
@@ -31,39 +43,69 @@ def callback(sv,j,i):
 
             ## change letter in plaintext alphabet
             alphabets[0][i] = letter.lower()
-            # print(alphabets[0])
-
 
         if j == 1: ## makes cyphertext alphabet entries uppercase
             letter = entries[i][j].get()
             entries[i][j].delete(0,END)
             entries[i][j].insert(0,letter.upper())
-
             ## change letter in cyphertext alphabet
             alphabets[1][i] = letter.upper()
-            # print(alphabets[1])
+        check_alphabets()
 
-        # for alphabet in alphabets:
-        #     # print(alphabet)
-        #     if svs[j][i].get() in alphabet:
-        #         letter_index = alphabet.index(svs[j][i].get())
-        #         print(alphabets[a][letter_index], svs[j][i].get()) ## The letter it changed to
-        #         alphabet_index = a
-        #         print(alphabets[j][i]) ## the origional letter
-        #
-        #     # else:
-        #     #
-        #     a +=1
-        # # print(svs[j][i].get())
 
 def check_alphabets():
+    one_to_one = False
     letters = []
     for entry in entries:
         for letter in entry:
             letters.append(letter.get())
-    # print(', '.join(letters))
-    if letter
-    letters | alphabets[1]
+
+    duplicate_letters = [item for item, count in collections.Counter(letters).items() if count > 1]
+
+    for index in range(26):
+        entries[index][0].configure(bg = "blue", fg = "lightblue")
+        entries[index][1].configure(bg = "blue", fg = "lightblue")
+
+    if not bool(duplicate_letters):
+        print("no duplicates")
+        key = {entries[i][0].get(): entries[i][1].get() for i in range(26)}
+        print(key)
+        one_to_one = True
+
+    else:
+        print("Duplicated letters:",", ".join(duplicate_letters))
+
+        entered_cypher_letters = [entries[i][1].get() for i in range(26)]
+        entered_normal_letters = [entries[i][0].get() for i in range(26)]
+
+        for duplicate in sorted(list_duplicates(entered_cypher_letters)):
+            print(duplicate)
+            for index in duplicate[1]:
+                entries[index][1].configure(bg = "red", fg = "black")
+
+        for duplicate in sorted(list_duplicates(entered_normal_letters)):
+            print(duplicate)
+            for index in duplicate[1]:
+                entries[index][0].configure(bg = "red", fg = "black")
+    if one_to_one:
+        key["\n"] = "\n"
+        return one_to_one, key
+    else:
+        return one_to_one, 0
+        # for letter in duplicate_letters:
+        #     # print(letter)
+        #     # print(entered_cypher_letters)
+        #     if letter in entered_cypher_letters:
+        #         print(letter)
+        #         cypher_duplicate_index = entered_cypher_letters.index(letter)
+        #         print(cypher_duplicate_index)
+        #
+        #     elif letter in entered_normal_letters:
+        #         print(letter)
+        #         plain_duplicate_index = entered_plain_letters.index(letter)
+        #         print(plain_duplicate_index)
+
+    # letters | alphabets[1]
 
 def entry_text(text,j):
     if j == 0: ## makes plaintext alphabet lowercase
@@ -82,33 +124,45 @@ def entry_text(text,j):
 
 
 def encrypt():
-    check_alphabets()
-    plaintext = plaintext_entry.get(1.0, 'end')
-    plaintext_list = []
-    encryptedtext_list = []
-    for i in range(len(plaintext)-1):
-         plaintext_list.append(plaintext[i])
+    [one_to_one, key] = check_alphabets()
+    if one_to_one:
+        plaintext = plaintext_entry.get(1.0, 'end')
+        plaintext_list = []
+        encryptedtext_list = []
+        for i in range(len(plaintext)-1):
+             plaintext_list.append(plaintext[i])
 
-    for letter in plaintext_list:
-        letter_index = alphabets[0].index(letter)
-        encryptedtext_list.append(alphabets[1][letter_index])
+        for letter in plaintext_list:
+            encryptedtext_list.append(key[letter])
+            # letter_index = alphabets[0].index(letter)
+            # encryptedtext_list.append(alphabets[1][letter_index])
 
-    cyphertext_entry.replace(1.0,END,''.join(encryptedtext_list))
+        cyphertext_entry.replace(1.0,END,''.join(encryptedtext_list))
 
-
-def decrypt():
-
+def frequency():
     cyphertext = cyphertext_entry.get(1.0, 'end')
-    decryptedtext_list = []
     cyphertext_list = []
+
     for i in range(len(cyphertext)-1):
          cyphertext_list.append(cyphertext[i])
 
-    for letter in cyphertext_list:
-        letter_index = alphabets[1].index(letter)
-        decryptedtext_list.append(alphabets[0][letter_index])
 
-    plaintext_entry.replace(1.0,END,''.join(decryptedtext_list))
+def decrypt():
+    [one_to_one, key] = check_alphabets()
+    if one_to_one:
+        cyphertext = cyphertext_entry.get(1.0, 'end')
+        decryptedtext_list = []
+        cyphertext_list = []
+        for i in range(len(cyphertext)-1):
+             cyphertext_list.append(cyphertext[i])
+
+        for letter in cyphertext_list:
+            for index, value in key.items():
+                 if value == letter:
+                     decryptedtext_list.append(index)
+
+
+        plaintext_entry.replace(1.0,END,''.join(decryptedtext_list))
 
 
 
@@ -373,6 +427,9 @@ for letter in common_cypher_letters:
 
 plaintext_alphabet = ["a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"]
 cyphertext_alphabet = ["A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"]
+
+# plaintext_alphabet = ["a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"]
+# cyphertext_alphabet = ["A","B","C","D","E","F","G","H","I","J","K","L","L","L","O","O","O","R","S","T","U","V","W","X","Y","Z"] ## fucked up
 
 alphabets = [plaintext_alphabet, cyphertext_alphabet]
 
