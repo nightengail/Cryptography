@@ -154,16 +154,16 @@ def frequency():
 
     sorted_cyphertext = [i for n, i in enumerate(sorted_cyphertext) if i not in sorted_cyphertext[:n]]
 
-    if " " in sorted_cyphertext: sorted_cyphertext.remove(' ')
-    if " " in sorted_cyphertext: sorted_cyphertext.remove("\n")
-    if " " in sorted_cyphertext: sorted_cyphertext.remove(",")
-    if " " in sorted_cyphertext: sorted_cyphertext.remove(".")
+    if " " in sorted_cyphertext: sorted_cyphertext.remove(' '); cyphertext_list.remove(' ')
+    if " " in sorted_cyphertext: sorted_cyphertext.remove("\n"); cyphertext_list.remove('\n')
+    if " " in sorted_cyphertext: sorted_cyphertext.remove(","); cyphertext_list.remove(',')
+    if " " in sorted_cyphertext: sorted_cyphertext.remove("."); cyphertext_list.remove('.')
 
 
     i = 0
     for letter in sorted_cyphertext:
         cyphertext_frequency_labels[i][0].configure(text = letter)
-        cyphertext_frequency_labels[i][1].configure(text = cyphertext_frequency[letter])
+        cyphertext_frequency_labels[i][1].configure(text = round(100*cyphertext_frequency[letter]/len(cyphertext_list),1))
 
 
         i = i+1
