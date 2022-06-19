@@ -12,6 +12,7 @@ import numpy as np
 
 import collections
 from collections import defaultdict
+from collections import Counter
 
 
 import tkinter as tk
@@ -22,15 +23,13 @@ from tkinter import ttk
 from tkmacosx import Button
 
 
-## vvFrom https://stackoverflow.com/questions/5419204/index-of-duplicates-items-in-a-python-list
 def list_duplicates(seq):
+    ## From https://stackoverflow.com/questions/5419204/index-of-duplicates-items-in-a-python-list
     tally = defaultdict(list)
     for i,item in enumerate(seq):
         tally[item].append(i)
     return ((key,locs) for key,locs in tally.items()
                             if len(locs)>1)
-## ^^From https://stackoverflow.com/questions/5419204/index-of-duplicates-items-in-a-python-list
-
 
 def callback(sv,j,i):
     if bool(svs):
@@ -51,7 +50,6 @@ def callback(sv,j,i):
             ## change letter in cyphertext alphabet
             alphabets[1][i] = letter.upper()
         check_alphabets()
-
 
 def check_alphabets():
     one_to_one = False
@@ -89,23 +87,10 @@ def check_alphabets():
                 entries[index][0].configure(bg = "red", fg = "black")
     if one_to_one:
         key["\n"] = "\n"
+        key[" "] = " "
         return one_to_one, key
     else:
         return one_to_one, 0
-        # for letter in duplicate_letters:
-        #     # print(letter)
-        #     # print(entered_cypher_letters)
-        #     if letter in entered_cypher_letters:
-        #         print(letter)
-        #         cypher_duplicate_index = entered_cypher_letters.index(letter)
-        #         print(cypher_duplicate_index)
-        #
-        #     elif letter in entered_normal_letters:
-        #         print(letter)
-        #         plain_duplicate_index = entered_plain_letters.index(letter)
-        #         print(plain_duplicate_index)
-
-    # letters | alphabets[1]
 
 def entry_text(text,j):
     if j == 0: ## makes plaintext alphabet lowercase
@@ -116,11 +101,6 @@ def entry_text(text,j):
         text_string = text.get()
         text.delete(0,END)
         text.insert(0,text_string.upper())
-
-
-
-
-
 
 
 def encrypt():
@@ -134,18 +114,8 @@ def encrypt():
 
         for letter in plaintext_list:
             encryptedtext_list.append(key[letter])
-            # letter_index = alphabets[0].index(letter)
-            # encryptedtext_list.append(alphabets[1][letter_index])
 
         cyphertext_entry.replace(1.0,END,''.join(encryptedtext_list))
-
-def frequency():
-    cyphertext = cyphertext_entry.get(1.0, 'end')
-    cyphertext_list = []
-
-    for i in range(len(cyphertext)-1):
-         cyphertext_list.append(cyphertext[i])
-
 
 def decrypt():
     [one_to_one, key] = check_alphabets()
@@ -154,16 +124,55 @@ def decrypt():
         decryptedtext_list = []
         cyphertext_list = []
         for i in range(len(cyphertext)-1):
-             cyphertext_list.append(cyphertext[i])
+            cyphertext_list.append(cyphertext[i])
 
         for letter in cyphertext_list:
             for index, value in key.items():
-                 if value == letter:
-                     decryptedtext_list.append(index)
-
+                if value == letter:
+                    decryptedtext_list.append(index)
 
         plaintext_entry.replace(1.0,END,''.join(decryptedtext_list))
 
+def reorder():
+    [one_to_one, key] = check_alphabets()
+
+
+
+def frequency():
+    cyphertext = cyphertext_entry.get(1.0, 'end')
+    cyphertext_list = []
+# there are many eeeeeeeees here
+
+    for i in range(len(cyphertext)-1):
+         cyphertext_list.append(cyphertext[i])
+
+    sorted_cyphertext = [item for items, c in Counter(cyphertext_list).most_common() for item in [items] * c] ##https://www.geeksforgeeks.org/python-sort-list-elements-by-frequency/
+
+    cyphertext_frequency = Counter(cyphertext_list)
+    # print(sorted_cyphertext)
+    # print(cyphertext_frequency)
+
+    sorted_cyphertext = [i for n, i in enumerate(sorted_cyphertext) if i not in sorted_cyphertext[:n]]
+
+    if " " in sorted_cyphertext: sorted_cyphertext.remove(' ')
+    if " " in sorted_cyphertext: sorted_cyphertext.remove("\n")
+    if " " in sorted_cyphertext: sorted_cyphertext.remove(",")
+    if " " in sorted_cyphertext: sorted_cyphertext.remove(".")
+
+
+    i = 0
+    for letter in sorted_cyphertext:
+        cyphertext_frequency_labels[i][0].configure(text = letter)
+        cyphertext_frequency_labels[i][1].configure(text = cyphertext_frequency[letter])
+
+
+        i = i+1
+        if i > 19:
+            return
+    if i<19:
+        for l in range(i,19):
+            cyphertext_frequency_labels[l][0].configure(text = "-")
+            cyphertext_frequency_labels[l][1].configure(text =  0)
 
 
 plaintext = []
@@ -341,10 +350,24 @@ cyphertext_button = Button(
         borderwidth=4,
         command = lambda: decrypt()
         )
-# plaintext_button.grid(row = 0, column = 1, padx = (12,0), sticky = "")
+
+frequency_button = Button(
+        button_frame,
+        text="frequency",
+        width=80,
+        height=600*2/2/26,
+        fg="yellow",
+        bg = "blue",
+        activebackground="lightblue",
+        borderwidth=4,
+        command = lambda: frequency()
+        )
+
+
 encrypt_button.grid(row = 0, column = 2, padx = (263,12), pady=20, sticky = "")
 decrypt_button.grid(row = 0, column = 3, sticky = "")
-# cyphertext_button.grid(row = 0, column = 4, padx = (206,12), sticky = "")
+
+frequency_button.grid(row = 0, column = 4, padx = (120,12), pady=20, sticky = "")
 
 
 
@@ -393,10 +416,13 @@ labelwidth = 3
 labelheight = 2
 labelborder = 1
 #letter frequency from: https://www.researchgate.net/figure/Relative-Frequency-of-Letters-in-the-English-Language_fig2_325714929
-common_cypher_letters =         ["e",  "t", "a", "o", "i", "n", "s", "h", "r", "d", "l", "c", "u", "m", "w", "f", "g", "y", "p"] #, "b", "v", "k",  "j",  "x",   "q", "z"]
-common_cypher_letter_frequency = [12.7, 9.1, 8.2, 7.5, 7.0, 6.7, 6.3, 6.1, 6.0, 4.3, 4.0, 2.8, 2.7, 2.4, 2.3, 2.2, 2.0, 2.1, 1.9] #, 1.5, 0.9, 0.8, 0.153, 0.015, 0.09, 0.07]
+
+common_cypher_letters =         [   "E",           "T",          "C",          "Y",          "P",         "H",          "R",          "X",       "-","-","-","-","-","-","-","-","-","-","-"] #, "b", "v", "k",  "j",  "x",   "q", "z"]
+common_cypher_letter_frequency = [round(200/9), round(200/9), round(100/9), round(100/9), round(100/9), round(100/9), round(100/9), round(100/9), 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0] #, 1.5, 0.9, 0.8, 0.153, 0.015, 0.09, 0.07]
+
 i = 0
 xl = 9
+cyphertext_frequency_labels = []
 for letter in common_cypher_letters:
 
     letter_label = Label(
@@ -419,6 +445,8 @@ for letter in common_cypher_letters:
     width = labelwidth,
     height = labelheight
     )
+
+    cyphertext_frequency_labels.append([letter_label,label])
 
     letter_label.grid(row = 1, column = i+1, padx = (xl,2) , pady = 8, sticky = "")
     label.grid(row = 0, column = i+1, padx = (xl,2) , pady = 8, sticky = "")
