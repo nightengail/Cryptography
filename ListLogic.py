@@ -17,18 +17,26 @@
 # # Printing resultant dictionary
 # print ("Resultant dictionary is : " +  str(res))
 # ###^^
-###vvhttps://stackoverflow.com/questions/5419204/index-of-duplicates-items-in-a-python-list
-from collections import defaultdict
 
-def list_duplicates(seq):
-    tally = defaultdict(list)
-    for i,item in enumerate(seq):
-        tally[item].append(i)
-    return ((key,locs) for key,locs in tally.items()
-                            if len(locs)>1)
+# ###vvhttps://stackoverflow.com/questions/5419204/index-of-duplicates-items-in-a-python-list
+# from collections import defaultdict
+#
+# def list_duplicates(seq):
+#     tally = defaultdict(list)
+#     for i,item in enumerate(seq):
+#         tally[item].append(i)
+#     return ((key,locs) for key,locs in tally.items()
+#                             if len(locs)>1)
+#
+#
+# source = "ABABDBAAEDSBQEWBAFLSAFB"
+# for dup in sorted(list_duplicates(source)f:
+#     print(dup)
+# ###^^
 
-
-source = "ABABDBAAEDSBQEWBAFLSAFB"
-for dup in sorted(list_duplicates(source)):
-    print(dup)
-###^^
+list = [["A", "B"], ["C", "D"], ["E","F"]]
+lista = [list[i][0] for i in range(len(list))]
+listb = [list[i][1] for i in range(len(list))]
+print(list)
+print(lista)
+print(listb)
